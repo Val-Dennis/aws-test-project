@@ -14,8 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Debug HOST variable
+      - name: Set up SSH
         env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           HOST: ${{ secrets.HOST }}
         run: |
           echo "HOST is: '$HOST'"
@@ -23,12 +24,6 @@ jobs:
             echo "ERROR: HOST secret is empty or missing!"
             exit 1
           fi
-
-      - name: Set up SSH
-        env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          HOST: ${{ secrets.HOST }}
-        run: |
           mkdir -p ~/.ssh
           printf "%s" "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
