@@ -55,6 +55,13 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           ssh -o StrictHostKeyChecking=no $USER@$HOST << EOF
+          if ! command -v docker &> /dev/null
+          then
+          sudo yum update -y
+          sudo amazon-linux-extras install docker -y
+          sudo service docker start
+          sudo usermod -aG docker $USER
+          fi
           docker pull $DOCKER_USERNAME/nextjs-app:latest
           docker stop next-app || true
           docker rm next-app || true
