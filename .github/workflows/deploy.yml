@@ -6,7 +6,6 @@ on:
       - main
 
 jobs:
-
   docker-build-and-push:
     runs-on: ubuntu-latest
     environment: production
@@ -43,7 +42,8 @@ jobs:
             exit 1
           fi
 
-           mkdir -p ~/.ssh
+          mkdir -p ~/.ssh
+          rm -f ~/.ssh/id_rsa
           printf "%s\n" "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
@@ -52,11 +52,11 @@ jobs:
         env:
           USER: ${{ secrets.USER }}
           HOST: ${{ secrets.HOST }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           ssh -o StrictHostKeyChecking=no $USER@$HOST << EOF
-          docker pull ${{ secrets.DOCKER_USERNAME }}/nextjs-app:latest
+          docker pull $DOCKER_USERNAME/nextjs-app:latest
           docker stop next-app || true
           docker rm next-app || true
-          docker run -d --name next-app -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/nextjs-app:latest
+          docker run -d --name next-app -p 3000:3000 $DOCKER_USERNAME/nextjs-app:latest
           EOF
-
