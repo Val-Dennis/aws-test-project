@@ -6,6 +6,7 @@ on:
       - main
 
 jobs:
+
   docker-build-and-push:
     runs-on: ubuntu-latest
     environment: production
@@ -23,7 +24,6 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/nextjs-app
 
-jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
