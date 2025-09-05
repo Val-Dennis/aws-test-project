@@ -8,7 +8,7 @@ on:
 jobs:
   test-secrets:
     runs-on: ubuntu-latest
-    # environment: production  # temporarily disabled
+    environment: production  # temporarily disabled
 
     steps:
       - name: Print secrets
