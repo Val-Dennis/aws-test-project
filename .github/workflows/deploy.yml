@@ -11,6 +11,9 @@ jobs:
     environment: production
 
     steps:
+      - name: Print current path
+        run: pwd
+
       - name: Checkout code
         uses: actions/checkout@v3
 
