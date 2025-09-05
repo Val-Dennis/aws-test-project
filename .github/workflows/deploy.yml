@@ -35,8 +35,16 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOYKEY }}
           HOST: ${{ secrets.HOST }}
         run: |
-          mkdir -p ~/.ssh
-          echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+          echo "DEPLOY_KEY length: ${#DEPLOY_KEY}"
+          echo "HOST is: '$HOST'"
+
+          if [ -z "$HOST" ]; then
+            echo "ERROR: HOST secret is empty or missing!"
+            exit 1
+          fi
+
+           mkdir -p ~/.ssh
+          printf "%s\n" "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
