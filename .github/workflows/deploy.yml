@@ -57,13 +57,26 @@ jobs:
           ssh -o StrictHostKeyChecking=no $USER@$HOST << EOF
           if ! command -v docker &> /dev/null
           then
-          sudo dnf install -y docker
-          sudo systemctl start docker
-          sudo systemctl enable docker
-          sudo usermod -aG docker $USER
+            sudo dnf install -y docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker $USER
           fi
-          sudo docker pull $DOCKER_USERNAME/nextjs-app:latest
-          sudo docker stop next-app || true
-          sudo docker rm next-app || true
-          sudo docker run -d --name next-app -p 3000:3000 $DOCKER_USERNAME/nextjs-app:latest
+
+          if ! command -v docker-compose &> /dev/null
+          then
+            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+
+          cd /home/$USER/aws-test-app
+
+          # Pull latest image
+          docker-compose pull
+
+          # Stop and remove old containers
+          docker-compose down
+
+          # Start up containers with NGINX and your app
+          docker-compose up -d
           EOF
