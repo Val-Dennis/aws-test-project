@@ -21,14 +21,14 @@ jobs:
         run: |
           echo "DEPLOY_KEY length: ${#DEPLOY_KEY}"
           echo "HOST is: '$HOST'"
+
           if [ -z "$HOST" ]; then
             echo "ERROR: HOST secret is empty or missing!"
             exit 1
           fi
+
           mkdir -p ~/.ssh
-          cat <<EOF > ~/.ssh/id_rsa
-$DEPLOY_KEY
-EOF
+          echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
