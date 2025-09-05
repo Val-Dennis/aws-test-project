@@ -19,6 +19,7 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           HOST: ${{ secrets.HOST }}
         run: |
+          echo "Using HOST: $HOST"         # Debug line to check HOST value in logs
           mkdir -p ~/.ssh
           printf "%s" "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
