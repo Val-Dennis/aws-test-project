@@ -19,6 +19,7 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOYKEY }}
           HOST: ${{ secrets.HOST }}
         run: |
+          echo "DEPLOY_KEY length: ${#DEPLOY_KEY}"
           echo "HOST is: '$HOST'"
           if [ -z "$HOST" ]; then
             echo "ERROR: HOST secret is empty or missing!"
