@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: DEPLOY_KEY
+    environment: production
 
     steps:
       - name: Checkout code
@@ -16,11 +16,11 @@ jobs:
 
       - name: Set up SSH
         env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_KEY: ${{ secrets.DEPLOYKEY }}
           HOST: ${{ secrets.HOST }}
         run: |
           mkdir -p ~/.ssh
-          printf "%s" "$DEPLOY_KEY" > ~/.ssh/id_rsa
+          printf "%s" "$DEPLOYKEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
