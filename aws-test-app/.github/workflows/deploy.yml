@@ -1,0 +1,30 @@
+name: Deploy to EC2 via SSH
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to EC2
+      run: |
+        ssh ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+          cd /home/ec2-user/aws-test-project
+          git pull origin main
+          npm install
+          pm2 restart next-app || pm2 start npm --name "next-app" -- run start -- -H 0.0.0.0
+        EOF
