@@ -63,20 +63,30 @@ jobs:
             sudo usermod -aG docker $USER
           fi
 
-          if ! command -v docker-compose &> /dev/null
+          sudo docker pull $DOCKER_USERNAME/nextjs-app:latest
+          sudo docker stop next-app || true
+          sudo docker rm next-app || true
+          sudo docker run -d --name next-app -p 3000:3000 $DOCKER_USERNAME/nextjs-app:latest
+
+          if ! command -v nginx &> /dev/null
           then
-            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+            sudo dnf install -y nginx
+            sudo systemctl enable nginx
           fi
 
-          cd /home/$USER/aws-test-app
+          sudo tee /etc/nginx/conf.d/nextjs-app.conf > /dev/null << 'EOL'
+          server {
+              listen 80;
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+          }
+          EOL
 
-          # Pull latest image
-          docker-compose pull
-
-          # Stop and remove old containers
-          docker-compose down
-
-          # Start up containers with NGINX and your app
-          docker-compose up -d
+          sudo systemctl restart nginx
           EOF
