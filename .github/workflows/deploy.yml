@@ -41,5 +41,6 @@ jobs:
             cd /home/ec2-user/aws-test-project/aws-test-app/
             git pull origin main
             npm install
+            npm run build
             pm2 restart next-app || pm2 start npm --name "next-app" -- run start -- -H 0.0.0.0
           EOF
