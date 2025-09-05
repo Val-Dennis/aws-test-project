@@ -26,7 +26,9 @@ jobs:
             exit 1
           fi
           mkdir -p ~/.ssh
-          printf "%s" "$DEPLOY_KEY" > ~/.ssh/id_rsa
+          cat <<EOF > ~/.ssh/id_rsa
+$DEPLOY_KEY
+EOF
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
