@@ -19,13 +19,12 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           HOST: ${{ secrets.HOST }}
         run: |
-          echo "DEPLOY_KEY length: ${#DEPLOY_KEY}"
-          echo "HOST: '$HOST'"
+          echo "Debug: HOST='$HOST'"
           mkdir -p ~/.ssh
           printf "%s" "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           if [ -z "$HOST" ]; then
-            echo "ERROR: HOST is empty!"
+            echo "ERROR: HOST environment variable is empty!"
             exit 1
           fi
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
