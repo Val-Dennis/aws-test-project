@@ -1,4 +1,4 @@
-name: Deploy to EC2 via SSH
+name: Test Secrets Access
 
 on:
   push:
@@ -6,38 +6,21 @@ on:
       - main
 
 jobs:
-  deploy:
+  test-secrets:
     runs-on: ubuntu-latest
-    environment: production
+    # environment: production  # temporarily disabled
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up SSH
+      - name: Print secrets
         env:
-          DEPLOY_KEY: ${{ secrets.DEPLOYKEY }}
+          DEPLOYKEY: ${{ secrets.DEPLOYKEY }}
           HOST: ${{ secrets.HOST }}
+          USER: ${{ secrets.USER }}
         run: |
-          echo "DEPLOY_KEY length: ${#DEPLOY_KEY}"
-          echo "HOST is: '$HOST'"
-          if [ -z "$HOST" ]; then
-            echo "ERROR: HOST secret is empty or missing!"
+          echo "DEPLOYKEY length: ${#DEPLOYKEY}"
+          echo "HOST: '$HOST'"
+          echo "USER: '$USER'"
+          if [ -z "$DEPLOYKEY" ] || [ -z "$HOST" ] || [ -z "$USER" ]; then
+            echo "One or more secrets are empty!"
             exit 1
           fi
-          mkdir -p ~/.ssh
-          printf "%s" "$DEPLOY_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
-
-      - name: Deploy to EC2
-        env:
-          USER: ${{ secrets.USER }}
-          HOST: ${{ secrets.HOST }}
-        run: |
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
-            cd /home/ec2-user/aws-test-project
-            git pull origin main
-            npm install
-            pm2 restart next-app || pm2 start npm --name "next-app" -- run start -- -H 0.0.0.0
-          EOF
