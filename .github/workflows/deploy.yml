@@ -30,25 +30,11 @@ jobs:
     needs: docker-build-and-push
 
     steps:
-      - name: Print current path
-        run: pwd
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Set up SSH
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOYKEY }}
           HOST: ${{ secrets.HOST }}
         run: |
-          echo "DEPLOY_KEY length: ${#DEPLOY_KEY}"
-          echo "HOST is: '$HOST'"
-
-          if [ -z "$HOST" ]; then
-            echo "ERROR: HOST secret is empty or missing!"
-            exit 1
-          fi
-
           mkdir -p ~/.ssh
           echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
@@ -59,10 +45,10 @@ jobs:
           USER: ${{ secrets.USER }}
           HOST: ${{ secrets.HOST }}
         run: |
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
-            cd /home/ec2-user/aws-test-project/aws-test-app/
-            git pull origin main
-            npm install
-            npm run build
-            pm2 restart next-app || pm2 start npm --name "next-app" -- run start -- -H 0.0.0.0
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << EOF
+          docker pull ${{ secrets.DOCKER_USERNAME }}/nextjs-app:latest
+          docker stop next-app || true
+          docker rm next-app || true
+          docker run -d --name next-app -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/nextjs-app:latest
           EOF
+
