@@ -62,8 +62,8 @@ jobs:
           sudo systemctl enable docker
           sudo usermod -aG docker $USER
           fi
-          docker pull $DOCKER_USERNAME/nextjs-app:latest
-          docker stop next-app || true
-          docker rm next-app || true
-          docker run -d --name next-app -p 3000:3000 $DOCKER_USERNAME/nextjs-app:latest
+          sudo docker pull $DOCKER_USERNAME/nextjs-app:latest
+          sudo docker stop next-app || true
+          sudo docker rm next-app || true
+          sudo docker run -d --name next-app -p 3000:3000 $DOCKER_USERNAME/nextjs-app:latest
           EOF
