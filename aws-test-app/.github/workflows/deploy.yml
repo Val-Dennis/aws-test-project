@@ -14,19 +14,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Debug HOST variable
+        env:
+          HOST: ${{ secrets.HOST }}
+        run: |
+          echo "HOST is: '$HOST'"
+          if [ -z "$HOST" ]; then
+            echo "ERROR: HOST secret is empty or missing!"
+            exit 1
+          fi
+
       - name: Set up SSH
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           HOST: ${{ secrets.HOST }}
         run: |
-          echo "Debug: HOST='$HOST'"
           mkdir -p ~/.ssh
           printf "%s" "$DEPLOY_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          if [ -z "$HOST" ]; then
-            echo "ERROR: HOST environment variable is empty!"
-            exit 1
-          fi
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
@@ -34,7 +39,7 @@ jobs:
           USER: ${{ secrets.USER }}
           HOST: ${{ secrets.HOST }}
         run: |
-          ssh $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
             cd /home/ec2-user/aws-test-project
             git pull origin main
             npm install
